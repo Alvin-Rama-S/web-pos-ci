@@ -1,0 +1,257 @@
+-- phpMyAdmin SQL Dump
+-- version 4.8.5
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Nov 03, 2022 at 02:42 PM
+-- Server version: 10.1.38-MariaDB
+-- PHP Version: 5.6.40
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `tokoku`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `beli`
+-- (See below for the actual view)
+--
+CREATE TABLE `beli` (
+`idsupplier` int(5)
+,`kdbarang` int(5)
+,`tglpemasukan` date
+,`jumlah` int(20)
+,`namabrg` varchar(30)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `jual`
+-- (See below for the actual view)
+--
+CREATE TABLE `jual` (
+`idjual` int(4)
+,`kdbarang` int(5)
+,`tgljual` date
+,`jumlah` int(30)
+,`namabrg` varchar(30)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbbarang`
+--
+
+CREATE TABLE `tbbarang` (
+  `kdbarang` int(3) NOT NULL,
+  `namabrg` varchar(30) NOT NULL,
+  `harga` int(20) NOT NULL,
+  `stock` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tbbarang`
+--
+
+INSERT INTO `tbbarang` (`kdbarang`, `namabrg`, `harga`, `stock`) VALUES
+(111, 'Bimoli', 25000, 2),
+(112, 'Kecap', 9000, 64),
+(113, 'Mie Sedap', 3500, 77);
+
+--
+-- Triggers `tbbarang`
+--
+DELIMITER $$
+CREATE TRIGGER `updatebrg` AFTER UPDATE ON `tbbarang` FOR EACH ROW BEGIN
+INSERT INTO tblogaktifitas SET 
+    kdbarang=old.kdbarang,
+    hargalama=old.harga,
+    hargabaru=new.harga,
+    waktu=CURRENT_DATE(),
+    nameuser=SESSION_USER();
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbjual`
+--
+
+CREATE TABLE `tbjual` (
+  `idjual` int(4) NOT NULL,
+  `kdbarang` int(5) NOT NULL,
+  `tgljual` date NOT NULL,
+  `jumlah` int(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tbjual`
+--
+
+INSERT INTO `tbjual` (`idjual`, `kdbarang`, `tgljual`, `jumlah`) VALUES
+(1, 111, '2022-10-13', 1),
+(2, 112, '2022-10-13', 1),
+(3, 112, '2022-10-18', 1);
+
+--
+-- Triggers `tbjual`
+--
+DELIMITER $$
+CREATE TRIGGER `Tdeletejual` BEFORE DELETE ON `tbjual` FOR EACH ROW BEGIN UPDATE tbbarang SET stock=stock+old.jumlah WHERE kdbarang=old.kdbarang; END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `Tstockjual` AFTER INSERT ON `tbjual` FOR EACH ROW BEGIN UPDATE tbbarang SET stock=stock-new.jumlah WHERE kdbarang=new.kdbarang; END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `Tupdatejual` AFTER UPDATE ON `tbjual` FOR EACH ROW BEGIN UPDATE tbbarang SET stock=stock-new.jumlah WHERE kdbarang=new.kdbarang; END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tblogaktifitas`
+--
+
+CREATE TABLE `tblogaktifitas` (
+  `kdbarang` int(5) NOT NULL,
+  `hargalama` int(20) NOT NULL,
+  `hargabaru` int(20) NOT NULL,
+  `waktu` date NOT NULL,
+  `nameuser` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tblogaktifitas`
+--
+
+INSERT INTO `tblogaktifitas` (`kdbarang`, `hargalama`, `hargabaru`, `waktu`, `nameuser`) VALUES
+(111, 20000, 25000, '2022-10-06', 'root@localhost'),
+(111, 25000, 25000, '2022-10-06', 'root@localhost'),
+(111, 25000, 25000, '2022-10-06', 'root@localhost'),
+(113, 7000, 5000, '2022-10-07', 'root@localhost'),
+(114, 3500, 5000, '2022-10-07', 'hehehe@localhost'),
+(114, 5000, 2500, '2022-10-07', 'hehehe@localhost'),
+(116, 300000, 300000, '2022-10-11', 'root@localhost'),
+(116, 300000, 300000, '2022-10-11', 'root@localhost'),
+(117, 1500, 1500, '2022-10-11', 'root@localhost'),
+(113, 5000, 5000, '2022-10-12', 'root@localhost'),
+(118, 34, 34, '2022-10-12', 'root@localhost'),
+(112, 15000, 15000, '2022-10-12', 'root@localhost'),
+(113, 5000, 5000, '2022-10-12', 'root@localhost'),
+(113, 5000, 5000, '2022-10-12', 'root@localhost'),
+(113, 5000, 5000, '2022-10-12', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(114, 2500, 2500, '2022-10-13', 'root@localhost'),
+(114, 2500, 2500, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(113, 5000, 5000, '2022-10-13', 'root@localhost'),
+(114, 2500, 2500, '2022-10-13', 'root@localhost'),
+(114, 2500, 2500, '2022-10-13', 'root@localhost'),
+(111, 25000, 25000, '2022-10-13', 'root@localhost'),
+(112, 9000, 9000, '2022-10-13', 'root@localhost'),
+(111, 25000, 25000, '2022-10-13', 'root@localhost'),
+(111, 25000, 25000, '2022-10-13', 'root@localhost'),
+(112, 9000, 9000, '2022-10-18', 'root@localhost');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbsupplier`
+--
+
+CREATE TABLE `tbsupplier` (
+  `idsupplier` int(5) NOT NULL,
+  `kdbarang` int(5) NOT NULL,
+  `tglpemasukan` date NOT NULL,
+  `jumlah` int(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tbsupplier`
+--
+
+INSERT INTO `tbsupplier` (`idsupplier`, `kdbarang`, `tglpemasukan`, `jumlah`) VALUES
+(1, 113, '2022-10-06', 6),
+(2, 113, '2022-10-13', 6);
+
+--
+-- Triggers `tbsupplier`
+--
+DELIMITER $$
+CREATE TRIGGER `Tstocksupplier` AFTER INSERT ON `tbsupplier` FOR EACH ROW BEGIN UPDATE tbbarang SET stock=stock+new.jumlah WHERE kdbarang=new.kdbarang; END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `Tupdatesupplier` BEFORE UPDATE ON `tbsupplier` FOR EACH ROW BEGIN UPDATE tbbarang SET stock=stock+new.jumlah WHERE kdbarang=new.kdbarang; END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `beli`
+--
+DROP TABLE IF EXISTS `beli`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `beli`  AS  select `a`.`idsupplier` AS `idsupplier`,`a`.`kdbarang` AS `kdbarang`,`a`.`tglpemasukan` AS `tglpemasukan`,`a`.`jumlah` AS `jumlah`,`b`.`namabrg` AS `namabrg` from (`tbsupplier` `a` join `tbbarang` `b` on((`a`.`kdbarang` = `b`.`kdbarang`))) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `jual`
+--
+DROP TABLE IF EXISTS `jual`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `jual`  AS  select `j`.`idjual` AS `idjual`,`j`.`kdbarang` AS `kdbarang`,`j`.`tgljual` AS `tgljual`,`j`.`jumlah` AS `jumlah`,`b`.`namabrg` AS `namabrg` from (`tbjual` `j` join `tbbarang` `b` on((`j`.`kdbarang` = `b`.`kdbarang`))) ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `tbbarang`
+--
+ALTER TABLE `tbbarang`
+  ADD PRIMARY KEY (`kdbarang`);
+
+--
+-- Indexes for table `tbjual`
+--
+ALTER TABLE `tbjual`
+  ADD PRIMARY KEY (`idjual`);
+
+--
+-- Indexes for table `tbsupplier`
+--
+ALTER TABLE `tbsupplier`
+  ADD PRIMARY KEY (`idsupplier`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
